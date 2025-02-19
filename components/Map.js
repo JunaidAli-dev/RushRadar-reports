@@ -123,7 +123,7 @@ const Map = () => {
     return (
         <div>
 
-            <MapContainer center={[center.lat, center.lng]} zoom={13} className="h-[80vh] w-full">
+            <MapContainer center={[center.lat, center.lng]} zoom={13} className="h-[80vh] w-full rounded-3xl">
                 <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
 
                 {reports.map((report) => (
