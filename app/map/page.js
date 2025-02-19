@@ -121,9 +121,9 @@ const Map = () => {
     }), [title, description, reports]);
 
     return (
-        <div>
+        <div className="p-5 m-auto">
 
-            <MapContainer center={[center.lat, center.lng]} zoom={13} className="h-96 w-full">
+            <MapContainer center={[center.lat, center.lng]} zoom={13} className="h-screen rounded-2xl w-full">
                 <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
 
                 {reports.map((report) => (

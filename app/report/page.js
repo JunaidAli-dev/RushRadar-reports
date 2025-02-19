@@ -93,7 +93,7 @@ const Reports = () => {
             ) : (
                 <table className="w-full border-collapse border border-gray-300">
                     <thead>
-                        <tr className="bg-gray-200">
+                        <tr className="bg-[#2796f0]">
                             <th className="border border-gray-300 px-4 py-2">Title</th>
                             <th className="border border-gray-300 px-4 py-2">Description</th>
                             <th className="border border-gray-300 px-4 py-2">Latitude</th>
