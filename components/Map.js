@@ -4,8 +4,9 @@ import { useSearchParams } from "next/navigation";
 import "leaflet/dist/leaflet.css";
 import { useEffect, useState, useRef, useMemo, useCallback } from "react";
 import L from "leaflet";
+import CategoryIcon from "./CategoryIcon";
 
-
+<CategoryIcon/>
 const redIcon = L.icon({
     iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png",
     shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
@@ -56,9 +57,9 @@ const Map = () => {
 
 
     const [isChecked, setisChecked] = useState(false);
-    
 
-    
+
+
 
 
 
@@ -75,7 +76,7 @@ const Map = () => {
                 }
 
                 setPosition(newPosition);
-              
+
                 //  Send the updated data to the backend
                 fetch("/api/reports", {
                     method: "POST",
@@ -107,9 +108,9 @@ const Map = () => {
                 <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
 
                 {reports.map((report) => (
-                    <Marker icon={report.status? greenIcon : redIcon} key={report.id} position={[report.latitude, report.longitude]}>
+                    <Marker icon={report.status ? greenIcon : redIcon} key={report.id} position={[report.latitude, report.longitude]}>
                         <Popup>
-                        <b>{report.title}</b> <br />
+                            <b>{CategoryIcon(report.title)} {report.title}</b> <br />
                             {report.description} <br />
                             <div className="flex items-center font-bold">
                                 <span className={report.status ? "text-green-500" : "text-red-600"}>{report.status ? "Resolved" : "Not Resolved"}</span>
@@ -143,23 +144,27 @@ const Map = () => {
 
                 <Marker draggable position={position} ref={markerRef} eventHandlers={eventHandlers}>
                     <Popup>
-                        <input
-                            type="text"
-                            placeholder="Title"
+                        {/* Dropdown for selecting report type */}
+                        <select
                             value={title}
                             onChange={(e) => setTitle(e.target.value)}
-                            className="p-1 border rounded"
-                        />
+                            className="p-1 border rounded w-full"
+                        >
+                            <option value="">Select Category</option> {/* Placeholder option */}
+                            <option value="Police">🚔 Police</option>
+                            <option value="Medical">🏥 Medical</option>
+                            <option value="Fire">🔥 Fire</option>
+                        </select>
                         <br />
                         <input
                             type="text"
                             placeholder="Description"
                             value={description}
                             onChange={(e) => setDescription(e.target.value)}
-                            className="p-1 border rounded"
+                            className="p-1 border rounded w-full mt-1"
                         />
                         <br />
-                        <span>Drag and drop to set position!</span>
+                        <span className="font-bold">Drag and drop to set position!</span>
                     </Popup>
                 </Marker>
             </MapContainer>

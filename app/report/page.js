@@ -1,6 +1,21 @@
 "use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import CategoryIcon from "@/components/CategoryIcon";
+
+// const getCategoryIcon = (category) => {
+//     switch (category) {
+//         case "Police":
+//             return "🚔"; // Police Car Emoji
+//         case "Medical":
+//             return "🏥"; // Hospital Emoji
+//         case "Fire":
+//             return "🔥"; // Fire Emoji
+//         default:
+//             return "❓"; // Unknown
+//     }
+// };
+<CategoryIcon/>
 
 const Reports = () => {
     const [reports, setReports] = useState([]);
@@ -22,13 +37,13 @@ const Reports = () => {
     };
 
     return (
-        <div className={`container mx-auto p-4 ${isClient ? "md:bg-gray-800 w-full  h-[88vh] m-auto mt-[3%]" : ""}`}>
+        <div className={`container mx-auto p-4 ${isClient ? "bg-gray-800 w-full h-[88vh] m-auto mt-[3%] rounded-2xl" : ""}`}>
             <h2 className="text-2xl font-bold mb-4">Submitted Reports</h2>
             
             {reports.length === 0 ? (
                 <p>No reports found.</p>
             ) : (
-                <div className="overflow-x-auto">
+                <div className="overflow-x-auto overflow-y-auto h-[75vh]">
                 <table className="w-full border-collapse border border-gray-300 text-sm md:text-base">
                     <thead>
                         <tr className="bg-[#2796f0] text-white">
@@ -45,7 +60,7 @@ const Reports = () => {
                         {reports.map((report, index) => (
                             <tr key={report.id} className="text-center text-black odd:bg-gray-100 even:bg-gray-200">
                                 <td className="border border-gray-300 px-2 md:px-4 py-2 font-bold">{report.id}</td>
-                                <td className="border border-gray-300 px-2 md:px-4 py-2">{report.title}</td>
+                                <td className="border border-gray-300 px-2 md:px-4 py-2"> {CategoryIcon(report.title)} {report.title}</td>
                                 <td className="border border-gray-300 px-2 md:px-4 py-2">{report.description}</td>
                                 <td className="border border-gray-300 px-2 md:px-4 py-2">{report.latitude}</td>
                                 <td className="border border-gray-300 px-2 md:px-4 py-2">{report.longitude}</td>
