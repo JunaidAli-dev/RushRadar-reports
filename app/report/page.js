@@ -28,27 +28,28 @@ const Reports = () => {
             {reports.length === 0 ? (
                 <p>No reports found.</p>
             ) : (
-                <table className="w-full border-collapse border border-gray-300">
+                <div className="overflow-x-auto">
+                <table className="w-full border-collapse border border-gray-300 text-sm md:text-base">
                     <thead>
-                        <tr className="bg-[#2796f0]">
-                            <th className="border border-gray-300 px-4 py-2">S.No.</th>
-                            <th className="border border-gray-300 px-4 py-2">Title</th>
-                            <th className="border border-gray-300 px-4 py-2">Description</th>
-                            <th className="border border-gray-300 px-4 py-2">Latitude</th>
-                            <th className="border border-gray-300 px-4 py-2">Longitude</th>
-                            <th className="border border-gray-300 px-4 py-2">Action</th>
-                            <th className="border border-gray-300 px-4 py-2">Status</th>
+                        <tr className="bg-[#2796f0] text-white">
+                            <th className="border border-gray-300 px-2 md:px-4 py-2">S.No.</th>
+                            <th className="border border-gray-300 px-2 md:px-4 py-2">Title</th>
+                            <th className="border border-gray-300 px-2 md:px-4 py-2">Description</th>
+                            <th className="border border-gray-300 px-2 md:px-4 py-2">Latitude</th>
+                            <th className="border border-gray-300 px-2 md:px-4 py-2">Longitude</th>
+                            <th className="border border-gray-300 px-2 md:px-4 py-2">Action</th>
+                            <th className="border border-gray-300 px-2 md:px-4 py-2">Status</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {reports.map((report) => (
-                            <tr key={report.id} className="text-center">
-                                <td className="border border-gray-300 px-4 py-2 font-bold">{report.id}</td>
-                                <td className="border border-gray-300 px-4 py-2">{report.title}</td>
-                                <td className="border border-gray-300 px-4 py-2">{report.description}</td>
-                                <td className="border border-gray-300 px-4 py-2">{report.latitude}</td>
-                                <td className="border border-gray-300 px-4 py-2">{report.longitude}</td>
-                                <td className="border border-gray-300 px-4 py-2">
+                        {reports.map((report, index) => (
+                            <tr key={report.id} className="text-center text-black odd:bg-gray-100 even:bg-gray-200">
+                                <td className="border border-gray-300 px-2 md:px-4 py-2 font-bold">{report.id}</td>
+                                <td className="border border-gray-300 px-2 md:px-4 py-2">{report.title}</td>
+                                <td className="border border-gray-300 px-2 md:px-4 py-2">{report.description}</td>
+                                <td className="border border-gray-300 px-2 md:px-4 py-2">{report.latitude}</td>
+                                <td className="border border-gray-300 px-2 md:px-4 py-2">{report.longitude}</td>
+                                <td className="border border-gray-300 px-2 md:px-4 py-2">
                                     <Link
                                         href={`/map?lat=${report.latitude}&lng=${report.longitude}`}
                                         className="text-blue-500 underline"
@@ -56,7 +57,7 @@ const Reports = () => {
                                         View on Map
                                     </Link>
                                 </td>
-                                <td className="border border-gray-300 px-4 py-2">
+                                <td className="border border-gray-300 px-2 md:px-4 py-2">
                                     {report.status ? (
                                         <div className="text-green-500 font-bold">Resolved</div>
                                     ) : (
@@ -67,6 +68,7 @@ const Reports = () => {
                         ))}
                     </tbody>
                 </table>
+            </div>
             )}
         </div>
     );
