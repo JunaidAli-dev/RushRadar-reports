@@ -2,19 +2,8 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import CategoryIcon from "@/components/CategoryIcon";
+import MapIcon from "@/components/Mapicon";
 
-// const getCategoryIcon = (category) => {
-//     switch (category) {
-//         case "Police":
-//             return "🚔"; // Police Car Emoji
-//         case "Medical":
-//             return "🏥"; // Hospital Emoji
-//         case "Fire":
-//             return "🔥"; // Fire Emoji
-//         default:
-//             return "❓"; // Unknown
-//     }
-// };
 <CategoryIcon/>
 
 const Reports = () => {
@@ -38,7 +27,7 @@ const Reports = () => {
 
     return (
         <div className={`container mx-auto p-4 ${isClient ? "bg-gray-800 w-full h-[88vh] m-auto mt-[3%] rounded-2xl" : ""}`}>
-            <h2 className="text-2xl font-bold mb-4">Submitted Reports</h2>
+            <h2 className={ `text-2xl font-bold mb-4 ${isClient ? "text-center" : ""}`}>Submitted Reports</h2>
             
             {reports.length === 0 ? (
                 <p>No reports found.</p>
@@ -50,9 +39,9 @@ const Reports = () => {
                             <th className="border border-gray-300 px-2 md:px-4 py-2">S.No.</th>
                             <th className="border border-gray-300 px-2 md:px-4 py-2">Title</th>
                             <th className="border border-gray-300 px-2 md:px-4 py-2">Description</th>
-                            <th className="border border-gray-300 px-2 md:px-4 py-2">Latitude</th>
-                            <th className="border border-gray-300 px-2 md:px-4 py-2">Longitude</th>
-                            <th className="border border-gray-300 px-2 md:px-4 py-2">Action</th>
+                            {/* <th className="border border-gray-300 px-2 md:px-4 py-2">Latitude</th>
+                            <th className="border border-gray-300 px-2 md:px-4 py-2">Longitude</th> */}
+                            <th className="border border-gray-300 px-2 md:px-4 py-2">View</th>
                             <th className="border border-gray-300 px-2 md:px-4 py-2">Status</th>
                         </tr>
                     </thead>
@@ -61,15 +50,15 @@ const Reports = () => {
                             <tr key={report.id} className="text-center text-black odd:bg-gray-100 even:bg-gray-200">
                                 <td className="border border-gray-300 px-2 md:px-4 py-2 font-bold">{report.id}</td>
                                 <td className="border border-gray-300 px-2 md:px-4 py-2"> {CategoryIcon(report.title)} {report.title}</td>
-                                <td className="border border-gray-300 px-2 md:px-4 py-2">{report.description}</td>
-                                <td className="border border-gray-300 px-2 md:px-4 py-2">{report.latitude}</td>
-                                <td className="border border-gray-300 px-2 md:px-4 py-2">{report.longitude}</td>
+                                <td className="border border-gray-300 w-[56vw] px-2 md:px-4 py-2">{report.description}</td>
+                                {/* <td className="border border-gray-300 px-2 md:px-4 py-2">{report.latitude}</td>
+                                <td className="border border-gray-300 px-2 md:px-4 py-2">{report.longitude}</td> */}
                                 <td className="border border-gray-300 px-2 md:px-4 py-2">
                                     <Link
                                         href={`/map?lat=${report.latitude}&lng=${report.longitude}`}
                                         className="text-blue-500 underline"
                                     >
-                                        View on Map
+                                        <MapIcon/>
                                     </Link>
                                 </td>
                                 <td className="border border-gray-300 px-2 md:px-4 py-2">
@@ -90,3 +79,4 @@ const Reports = () => {
 };
 
 export default Reports;
+

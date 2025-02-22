@@ -1,5 +1,3 @@
-import React from 'react'
-
 const CategoryIcon = (category) => {
         switch (category) {
         case "Police":
@@ -8,6 +6,12 @@ const CategoryIcon = (category) => {
             return "🏥"; // Hospital Emoji
         case "Fire":
             return "🔥"; // Fire Emoji
+        case "Towing":
+            return "🚘🆘";
+        case "Electric":
+            return "💡";
+        case "Construction":
+            return "🚧";
         default:
             return "❓"; // Unknown
     }

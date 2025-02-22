@@ -3,16 +3,16 @@ import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from "react-leaf
 import { useSearchParams } from "next/navigation";
 import "leaflet/dist/leaflet.css";
 import { useEffect, useState, useRef, useMemo, useCallback } from "react";
-import L from "leaflet";
+import CategoryIcon from "@/components/CategoryIcon";
+import RedIcon from "@/components/Redicon";
+import Greenicon from "@/components/Greenicon";
+import MapIcon from "@/components/Mapicon";
 
-const redIcon = L.icon({
-    iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png",
-    shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
-    iconSize: [25, 41], // Size of the icon
-    iconAnchor: [12, 41], // Point where the icon is anchored
-    popupAnchor: [1, -34], // Point where the popup should open
-    shadowSize: [41, 41], // Size of the shadow
-});
+
+
+
+<CategoryIcon />
+
 
 const center = {
     lat: 25.3176,
@@ -23,15 +23,16 @@ const Map = () => {
     const searchParams = useSearchParams();
     const [reports, setReports] = useState([]);
     const [position, setPosition] = useState(center);
-    const [title, setTitle] = useState(""); 
-    const [description, setDescription] = useState("");  
+    const [title, setTitle] = useState("");
+    const [description, setDescription] = useState("");
     const markerRef = useRef(null);
 
-        //  Get coordinates from URL (if any)
-        const urlLat = searchParams.get("lat");
-        const urlLng = searchParams.get("lng");
-    
-        const initialCenter = urlLat && urlLng ? { lat: parseFloat(urlLat), lng: parseFloat(urlLng) } : center;
+
+    //  Get coordinates from URL (if any)
+    const urlLat = searchParams.get("lat");
+    const urlLng = searchParams.get("lng");
+
+    const initialCenter = urlLat && urlLng ? { lat: parseFloat(urlLat), lng: parseFloat(urlLng) } : center;
 
     // Fetch reports on mount
     useEffect(() => {
@@ -44,40 +45,9 @@ const Map = () => {
             .catch((err) => console.error("Error fetching reports:", err));
     }, []);
 
-    // const eventHandlers = useMemo(
-    //     () => ({
-    //         dragend() {
 
+    const [isChecked, setisChecked] = useState(false);
 
-    //             const marker = markerRef.current;
-    //             if (marker != null) {
-    //                 const newPosition = marker.getLatLng();
-    //                 setPosition(newPosition);
-
-    //                 // ✅ Send updated latitude & longitude to backend
-    //                 fetch("/api/reports", {
-    //                     method: "POST",
-    //                     headers: { "Content-Type": "application/json" },
-
-    //                     body: JSON.stringify({
-
-    //                         title:"hbdk",
-    //                         description:"jbsd",
-
-    //                         latitude: newPosition.lat,
-    //                         longitude: newPosition.lng,
-    //                     })
-    //                 ,
-    //                 })
-    //                 .then((res) => res.json())
-    //                 .then((data) => console.log("Updated report:", data))
-    //                 .catch((err) => console.error("Error updating marker:", err));
-    //             }
-
-    //         },
-    //     }),
-    //     []
-    // );
 
 
 
@@ -89,11 +59,11 @@ const Map = () => {
             const marker = markerRef.current;
             if (marker) {
                 const newPosition = marker.getLatLng();
-                                //  Prevent empty title/description submissions
-                                if (!title.trim() || !description.trim()) {
-                                    alert("Please enter a title and description before submitting.");
-                                    return;
-                                }
+                //  Prevent empty title/description submissions
+                if (!title.trim() || !description.trim()) {
+                    alert("Please enter a title and description before submitting.");
+                    return;
+                }
 
                 setPosition(newPosition);
 
@@ -106,39 +76,57 @@ const Map = () => {
                         description,
                         latitude: newPosition.lat,
                         longitude: newPosition.lng,
+                        status: false,
                     }),
                 })
-                .then((res) => res.json())
-                .then((data) => {
-                    setReports([...reports, data]); // Add new marker as static
-                    setTitle(""); // Reset title
-                    setDescription(""); // Reset description
-                    setPosition(center); // Reset position for new draggable marker
-                })
-                .catch((err) => console.error("Error updating marker:", err));
+                    .then((res) => res.json())
+                    .then((data) => {
+                        setReports([...reports, data]); // Add new marker as static
+                        setTitle(""); // Reset title
+                        setDescription(""); // Reset description
+                        setPosition(center); // Reset position for new draggable marker
+                    })
+                    .catch((err) => console.error("Error updating marker:", err));
             }
         },
-    }), [title, description, reports]);
+    }), [title, description, reports,]);
 
     return (
-        <div className="p-5 m-auto">
+        <div className="p-3">
 
-            <MapContainer center={[center.lat, center.lng]} zoom={13} className="h-screen rounded-2xl w-full">
+            <MapContainer center={[center.lat, center.lng]} zoom={13} className="h-[97vh] rounded-2xl w-full">
                 <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
 
                 {reports.map((report) => (
-                    <Marker icon={redIcon} key={report.id} position={[report.latitude, report.longitude]}>
+                    <Marker icon={report.status ? Greenicon : RedIcon} key={report.id} position={[report.latitude, report.longitude]}>
                         <Popup>
-                            <b>{report.title}</b> <br />
-                            {report.description}
+                            <b>{CategoryIcon(report.title)} {report.title}</b> <br />
+                            {report.description} <br />
+                            <div className="flex items-center font-bold">
+                                <span className={report.status ? "text-green-500" : "text-red-600"}>{report.status ? "Resolved" : "Not Resolved"}</span>
+
+                            </div>
+                           
+                            {/* Add Google Maps direction link */}
+                            <a
+                                href={`https://www.google.com/maps/dir/?api=1&destination=${report.latitude},${report.longitude}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-blue-600 font-bold"
+                            >
+                                <div className="flex justify-center items-center gap-1">Get Directions <MapIcon size={18} /></div>
+                            </a>
                         </Popup>
                     </Marker>
                 ))}
 
-              
+
+
+
             </MapContainer>
         </div>
     );
 };
 
 export default Map;
+
