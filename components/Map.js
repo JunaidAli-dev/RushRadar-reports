@@ -10,6 +10,9 @@ import Greenicon from "./Greenicon";
 import MapIcon from "./Mapicon";
 import dynamic from "next/dynamic";
 
+// Neutral fallback (center of world map)
+const DEFAULT_CENTER = { lat: 20, lng: 0 };
+
 function SetCenter({ center }) {
   const map = useMap();
   useEffect(() => {
@@ -18,25 +21,25 @@ function SetCenter({ center }) {
   return null;
 }
 
-const defaultCenter = { lat: 25.3176, lng: 82.9739 };
-
 const MapComponent = () => {
   const searchParams = useSearchParams();
   const [reports, setReports] = useState([]);
   const [userLocation, setUserLocation] = useState(null);
-  const [markerPosition, setMarkerPosition] = useState(defaultCenter);
+  const [markerPosition, setMarkerPosition] = useState(DEFAULT_CENTER);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const markerRef = useRef(null);
   const [loadingLocation, setLoadingLocation] = useState(true);
 
+  // Handle URL parameters
   const urlLat = searchParams?.get("lat");
   const urlLng = searchParams?.get("lng");
-  const initialCenter =
-    urlLat && urlLng && !isNaN(parseFloat(urlLat)) && !isNaN(parseFloat(urlLng))
+  const initialCenter = 
+    urlLat && urlLng && !isNaN(urlLat) && !isNaN(urlLng)
       ? { lat: parseFloat(urlLat), lng: parseFloat(urlLng) }
-      : defaultCenter;
+      : DEFAULT_CENTER;
 
+  // Fetch reports
   useEffect(() => {
     fetch("/api/reports")
       .then((res) => res.json())
@@ -44,86 +47,88 @@ const MapComponent = () => {
       .catch(console.error);
   }, []);
 
+  // Core geolocation logic
   useEffect(() => {
     if (typeof window === "undefined") return;
 
-    const getLocation = () => {
+    const handleLocation = () => {
+      // Priority 1: URL coordinates
       if (urlLat && urlLng) {
-        setUserLocation(initialCenter);
         setMarkerPosition(initialCenter);
         setLoadingLocation(false);
         return;
       }
 
+      // Priority 2: Browser geolocation
       if ("geolocation" in navigator) {
         navigator.geolocation.getCurrentPosition(
-          (pos) => {
-            const newLocation = {
-              lat: pos.coords.latitude,
-              lng: pos.coords.longitude,
+          (position) => {
+            const newPos = {
+              lat: position.coords.latitude,
+              lng: position.coords.longitude
             };
-            setUserLocation(newLocation);
-            setMarkerPosition(newLocation);
+            setUserLocation(newPos);
+            setMarkerPosition(newPos);
             setLoadingLocation(false);
           },
           (error) => {
-            console.error("Geolocation error:", error);
-            setUserLocation(defaultCenter);
-            setMarkerPosition(defaultCenter);
+            console.error("Location error:", error);
+            setMarkerPosition(DEFAULT_CENTER);
             setLoadingLocation(false);
           },
-          { enableHighAccuracy: true }
+          {
+            enableHighAccuracy: true,
+            timeout: 10000,
+            maximumAge: 0
+          }
         );
       } else {
-        setUserLocation(defaultCenter);
-        setMarkerPosition(defaultCenter);
+        setMarkerPosition(DEFAULT_CENTER);
         setLoadingLocation(false);
       }
     };
 
-    getLocation();
+    handleLocation();
   }, [urlLat, urlLng]);
 
-  const eventHandlers = useMemo(
-    () => ({
-      async dragend() {
-        if (!markerRef.current) return;
-        if (!title.trim() || !description.trim()) {
-          alert("Please fill title and description!");
-          return;
-        }
+  // Marker drag handler
+  const eventHandlers = useMemo(() => ({
+    async dragend() {
+      if (!markerRef.current) return;
+      if (!title.trim() || !description.trim()) {
+        alert("Please fill required fields before moving marker!");
+        return;
+      }
 
-        try {
-          const newPos = markerRef.current.getLatLng();
-          const response = await fetch("/api/reports", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              title,
-              description,
-              latitude: newPos.lat,
-              longitude: newPos.lng,
-              status: false,
-              createdAt: new Date().toISOString(),
-            }),
-          });
+      try {
+        const newPos = markerRef.current.getLatLng();
+        const response = await fetch("/api/reports", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            title,
+            description,
+            latitude: newPos.lat,
+            longitude: newPos.lng,
+            status: false,
+            createdAt: new Date().toISOString()
+          })
+        });
 
-          const newReport = await response.json();
-          setReports((prev) => [...prev, newReport]);
-          setTitle("");
-          setDescription("");
-        } catch (error) {
-          console.error("Submission error:", error);
-        }
-      },
-    }),
-    [title, description]
-  );
+        const newReport = await response.json();
+        setReports(prev => [...prev, newReport]);
+        setTitle("");
+        setDescription("");
+      } catch (error) {
+        console.error("Submission failed:", error);
+      }
+    }
+  }), [title, description]);
 
   if (typeof window === "undefined" || loadingLocation) {
     return (
-      <div className="flex justify-center items-center h-[80vh] bg-gray-900">
-        <p className="text-white text-sm">Loading...</p>
+      <div className="flex justify-center items-center h-[80vh]">
+        <p className="text-gray-600">Detecting your location...</p>
       </div>
     );
   }
@@ -132,10 +137,12 @@ const MapComponent = () => {
     <MapContainer
       center={initialCenter}
       zoom={13}
-      className="h-[60vh] sm:h-[80vh] w-full rounded-3xl shadow-2xl border-2 border-white/10"
+      className="h-[60vh] sm:h-[80vh] w-full rounded-xl border"
     >
       <SetCenter center={userLocation || initialCenter} />
-      <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+      <TileLayer
+        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>' />
 
       {reports.map((report) => (
         <Marker
