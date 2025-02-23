@@ -155,7 +155,7 @@ const MapComponent = () => {
             <p className="text-[13px] text-gray-600 mb-1 leading-tight break-words line-clamp-3">
               {report.description}
             </p>
-            <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3.5">
               <span
                 className={`text-[13px] ${
                   report.status ? "text-green-500" : "text-red-600"
