@@ -145,19 +145,19 @@ const MapComponent = () => {
         >
           <Popup className="!min-w-[120px] max-w-[95vw] sm:max-w-[200px]">
             <div className="mb-0.5">
-              <span className="text-xs font-semibold">
+              <span className="text-sm font-semibold">
                 {CategoryIcon && typeof CategoryIcon === "function"
                   ? CategoryIcon(report.title)
                   : ""}
                 {report.title}
               </span>
             </div>
-            <p className="text-[0.7rem] text-gray-600 mb-1 leading-tight break-words line-clamp-3">
+            <p className="text-[13px] text-gray-600 mb-1 leading-tight break-words line-clamp-3">
               {report.description}
             </p>
             <div className="flex items-center justify-between">
               <span
-                className={`text-[0.7rem] ${
+                className={`text-[13px] ${
                   report.status ? "text-green-500" : "text-red-600"
                 }`}
               >
@@ -165,7 +165,7 @@ const MapComponent = () => {
               </span>
               <input
                 type="checkbox"
-                className="accent-green-500 cursor-pointer scale-50"
+                className="accent-green-500 cursor-pointer scale-80"
                 checked={report.status}
                 onChange={async () => {
                   try {
@@ -191,7 +191,7 @@ const MapComponent = () => {
               rel="noopener noreferrer"
               className="text-blue-600 text-[0.7rem] font-semibold"
             >
-              <div className="flex items-center gap-0.5">
+              <div className="flex text-[13px] items-center gap-0.5">
                 Directions <MapIcon size={12} />
               </div>
             </a>
