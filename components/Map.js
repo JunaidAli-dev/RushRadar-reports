@@ -426,7 +426,7 @@ const MapComponent = () => {
               rel="noopener noreferrer"
               className="text-blue-600 font-bold mt-1"
             >
-              <div className="flex justify-center items-center gap-1">
+              <div className="flex justify-left items-center gap-1">
                 Get Directions <MapIcon size={18} />
               </div>
             </a>
