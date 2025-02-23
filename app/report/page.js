@@ -26,13 +26,17 @@ const Reports = () => {
     return (
         <div className="container mx-auto p-4 bg-gradient-to-br from-gray-800 to-gray-900 w-full min-h-[85vh] mt-[1%] rounded-2xl shadow-xl">
             <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-6">
-                <div className="flex justify-between items-center">
+                <div className="flex justify-between  items-center">
+                    <div>
                     <HomeButton />
-                    <h2 className="text-2xl md:text-3xl font-bold mb-6 text-center text-white pt-6">
+                    </div>
+                    <div className="text-lg md:text-3xl font-bold mb-6 text-center text-white ">
                         Submitted Reports
-                        <div className="mx-auto mt-2 w-24 h-1 bg-blue-500 rounded-full"></div>
-                    </h2>
+                        <div className="mx-auto mt-2 w-12 md:w-24 h-1 bg-blue-500 rounded-full"></div>
+                    </div>
+                    <div>
                     <AboutButton />
+                    </div>
                 </div>
 
                 {reports.length === 0 ? (
