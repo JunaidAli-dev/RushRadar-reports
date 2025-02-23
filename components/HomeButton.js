@@ -10,7 +10,7 @@ const HomeButton = () => {
         px-4 py-2
         sm:px-5 sm:py-2.5
         md:px-6 md:py-3
-        rounded-lg
+        rounded-xl
         transition-all duration-300
         transform hover:scale-105
         shadow-md hover:shadow-lg

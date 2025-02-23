@@ -8,10 +8,10 @@ const Map = dynamic(() => import("@/components/Map"), { ssr: false });
 
 export default function Home() {
   return (
-    <div className="min-h-screen w-full p-4 bg-gradient-to-br from-gray-900 via-blue-900 to-gray-900">
+    <div className="min-h-screen w-full p-2 bg-gradient-to-br from-gray-900 via-blue-900 to-gray-900">
       {/* Header Section */}
-      <header className="flex justify-between items-center mb-6 backdrop-blur-sm bg-gray-900/80 rounded-2xl p-4 shadow-2xl">
-        <div className="flex items-center gap-4">
+      <header className="flex justify-between items-center mb-3 backdrop-blur-sm bg-gray-900/80 rounded-2xl p-4 shadow-2xl">
+        <div className="flex items-center gap-2">
           <Link href="/" className="hover:scale-105 transition-transform duration-200">
             <Image
               src="/Mainlogo.jpeg"
@@ -22,11 +22,11 @@ export default function Home() {
             />
           </Link>
           <Link href="/" className="hover:scale-105 transition-transform duration-200">
-            <div className="bg-gradient-to-r md:px-6 md:py-3 from-purple-600 to-blue-500 md:w-48 flex justify-center items-center p-2 rounded-xl cursor-pointer group">
+            <div className="bg-gradient-to-r md:px-3 md:py-2 from-purple-600 to-blue-500 md:w-48 flex justify-center items-center p-2 rounded-xl cursor-pointer group">
               <h1 className="md:text-2xl font-bold text-sm text-white tracking-wide transform group-hover:scale-110 transition-transform">
                 RushRadar
               </h1>
-              <span className="ml-2 text-xs text-white opacity-80 group-hover:opacity-100">Reports</span>
+              <span className="ml-1 text-xs text-white opacity-80 group-hover:opacity-100">Reports</span>
             </div>
           </Link>
         </div>
@@ -34,12 +34,12 @@ export default function Home() {
       </header>
 
       {/* Main Map Section */}
-      <main className="h-[70vh] rounded-2xl overflow-hidden shadow-2xl border-2 border-white/10">
+      <main className="h-[58vh] md:h-[68vh] rounded-2xl overflow-hidden shadow-2xl border-2 border-white/10">
         <Map />
       </main>
 
       {/* Footer CTA */}
-      <footer className="mt-1 text-center animate-bounce-slow">
+      <footer className="mt-3 text-center animate-bounce-slow">
         <Link
           href="/report"
           className="inline-flex items-center bg-gradient-to-r from-purple-600 to-blue-500 hover:from-purple-500 hover:to-blue-400 text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
@@ -51,7 +51,7 @@ export default function Home() {
       </footer>
 
       {/* Watermark Text */}
-      <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 text-center text-sm text-white/50 mt-4">
+      <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 text-center text-sm text-white/50">
         Serving Citizens • Enhancing Safety • Building Trust
       </div>
     </div>
