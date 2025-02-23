@@ -1,8 +1,17 @@
-"use client"
+"use client";
 import AboutButton from "@/components/AboutButton";
-import Map from "@/components/Map";
+import dynamic from 'next/dynamic';
 import Link from "next/link";
 import Image from "next/image";
+
+const Map = dynamic(() => import('@/components/Map'), {
+  ssr: false,
+  loading: () => (
+    <div className="h-[70vh] flex items-center justify-center text-white">
+      Loading map...
+    </div>
+  )
+});
 
 export default function Home() {
   return (
@@ -10,17 +19,17 @@ export default function Home() {
       {/* Header Section */}
       <header className="flex justify-between items-center mb-6 backdrop-blur-sm bg-gray-900/80 rounded-2xl p-4 shadow-2xl">
         <div className="flex items-center gap-4">
-        <Link href="/" className="hover:scale-105 transition-transform duration-200">
-        <Image
-            src="/Mainlogo.jpeg"
-            alt="MyLogo"
-            width={45}
-            height={45}
-            className="rounded-full bg-white p-[1px] shadow-lg"
-          />
-           </Link>
           <Link href="/" className="hover:scale-105 transition-transform duration-200">
-            <div className="bg-gradient-to-r  md:px-6 md:py-3 from-purple-600 to-blue-500 md:w-48 flex justify-center items-center p-2 rounded-xl cursor-pointer group">
+            <Image
+              src="/Mainlogo.jpeg"
+              alt="MyLogo"
+              width={45}
+              height={45}
+              className="rounded-full bg-white p-[1px] shadow-lg"
+            />
+          </Link>
+          <Link href="/" className="hover:scale-105 transition-transform duration-200">
+            <div className="bg-gradient-to-r md:px-6 md:py-3 from-purple-600 to-blue-500 md:w-48 flex justify-center items-center p-2 rounded-xl cursor-pointer group">
               <h1 className="md:text-2xl font-bold text-sm text-white tracking-wide transform group-hover:scale-110 transition-transform">
                 RushRadar
               </h1>
@@ -28,12 +37,7 @@ export default function Home() {
             </div>
           </Link>
         </div>
-
-
-
-
         <AboutButton className="hover:scale-105 transition-transform" />
-
       </header>
 
       {/* Main Map Section */}
