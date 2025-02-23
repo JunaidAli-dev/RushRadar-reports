@@ -4,14 +4,7 @@ import dynamic from 'next/dynamic';
 import Link from "next/link";
 import Image from "next/image";
 
-const Map = dynamic(() => import('@/components/Map'), {
-  ssr: false,
-  loading: () => (
-    <div className="h-[70vh] flex items-center justify-center text-white">
-      Loading map...
-    </div>
-  )
-});
+const Map = dynamic(() => import("@/components/Map"), { ssr: false });
 
 export default function Home() {
   return (

@@ -235,6 +235,7 @@
 // export default dynamic(() => Promise.resolve(MapComponent), { ssr: false });
 
 "use client";
+
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import { useSearchParams } from "next/navigation";
 import "leaflet/dist/leaflet.css";
@@ -248,8 +249,10 @@ import dynamic from "next/dynamic";
 function SetCenter({ center }) {
   const map = useMap();
   useEffect(() => {
-    map.setView(center);
-  }, [center]);
+    if (map && center) {
+      map.setView(center);
+    }
+  }, [map, center]);
   return null;
 }
 
@@ -268,10 +271,10 @@ const MapComponent = () => {
   // Get URL parameters safely
   const urlLat = searchParams?.get("lat");
   const urlLng = searchParams?.get("lng");
-  const initialCenter = urlLat && urlLng ? {
-    lat: parseFloat(urlLat),
-    lng: parseFloat(urlLng)
-  } : defaultCenter;
+  const initialCenter =
+    urlLat && urlLng && !isNaN(parseFloat(urlLat)) && !isNaN(parseFloat(urlLng))
+      ? { lat: parseFloat(urlLat), lng: parseFloat(urlLng) }
+      : defaultCenter;
 
   useEffect(() => {
     fetch("/api/reports")
@@ -296,7 +299,7 @@ const MapComponent = () => {
           (pos) => {
             const newLocation = {
               lat: pos.coords.latitude,
-              lng: pos.coords.longitude
+              lng: pos.coords.longitude,
             };
             setUserLocation(newLocation);
             setMarkerPosition(newLocation);
@@ -320,37 +323,41 @@ const MapComponent = () => {
     getLocation();
   }, [urlLat, urlLng]);
 
-  const eventHandlers = useMemo(() => ({
-    async dragend() {
-      if (!markerRef.current || !title.trim() || !description.trim()) {
-        alert("Please fill title and description before submitting!");
-        return;
-      }
+  const eventHandlers = useMemo(
+    () => ({
+      async dragend() {
+        if (!markerRef.current) return;
+        if (!title.trim() || !description.trim()) {
+          alert("Please fill title and description before submitting!");
+          return;
+        }
 
-      try {
-        const newPos = markerRef.current.getLatLng();
-        const response = await fetch("/api/reports", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            title,
-            description,
-            latitude: newPos.lat,
-            longitude: newPos.lng,
-            status: false,
-            createdAt: new Date().toISOString()
-          })
-        });
-        
-        const newReport = await response.json();
-        setReports(prev => [...prev, newReport]);
-        setTitle("");
-        setDescription("");
-      } catch (error) {
-        console.error("Submission error:", error);
-      }
-    }
-  }), [title, description]);
+        try {
+          const newPos = markerRef.current.getLatLng();
+          const response = await fetch("/api/reports", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              title,
+              description,
+              latitude: newPos.lat,
+              longitude: newPos.lng,
+              status: false,
+              createdAt: new Date().toISOString(),
+            }),
+          });
+
+          const newReport = await response.json();
+          setReports((prev) => [...prev, newReport]);
+          setTitle("");
+          setDescription("");
+        } catch (error) {
+          console.error("Submission error:", error);
+        }
+      },
+    }),
+    [title, description]
+  );
 
   if (typeof window === "undefined" || loadingLocation) {
     return (
@@ -375,33 +382,41 @@ const MapComponent = () => {
           position={[report.latitude, report.longitude]}
           icon={report.status ? Greenicon : RedIcon}
         >
-                <Popup>
-             <div className="mb-2">
-               <b>
-                 {CategoryIcon(report.title)} {report.title}
-               </b>
-             </div>
-             {report.description} <br />
-             <div className="flex items-center font-bold">
-               <span className={report.status ? "text-green-500" : "text-red-600"}>
-                 {report.status ? "Resolved" : "Not Resolved"}
-               </span>
-               <input
+          <Popup>
+            <div className="mb-2">
+              <b>
+                {CategoryIcon && typeof CategoryIcon === "function"
+                  ? CategoryIcon(report.title)
+                  : ""}
+                {report.title}
+              </b>
+            </div>
+            {report.description} <br />
+            <div className="flex items-center font-bold">
+              <span
+                className={report.status ? "text-green-500" : "text-red-600"}
+              >
+                {report.status ? "Resolved" : "Not Resolved"}
+              </span>
+              <input
                 type="checkbox"
                 className="ml-2 accent-green-500 mt-3 mb-1 cursor-pointer"
                 checked={report.status}
                 onChange={async () => {
-                  await fetch("/api/reports", {
-                    method: "PUT",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                      id: report.id,
-                      status: !report.status,
-                    }),
-                  })
-                    .then((res) => res.json())
-                    .then((updatedReports) => setReports(updatedReports))
-                    .catch(console.error);
+                  try {
+                    const res = await fetch("/api/reports", {
+                      method: "PUT",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({
+                        id: report.id,
+                        status: !report.status,
+                      }),
+                    });
+                    const updatedReports = await res.json();
+                    setReports(updatedReports);
+                  } catch (error) {
+                    console.error("Update error:", error);
+                  }
                 }}
               />
             </div>
