@@ -450,9 +450,9 @@ const MapComponent = () => {
             <option value="Police">🚔 Police</option>
             <option value="Medical">🏥 Medical</option>
             <option value="Fire">🔥 Fire</option>
-            <option value="Accident">🚨 Accident</option>
-            <option value="Electrical">⚡ Electrical</option>
-            <option value="Other">⚠️ Other</option>
+            <option value="Accident">🆘 Towing</option>
+            <option value="Electrical">💡 Electrical</option>
+            <option value="OtheConstructionr">🚧 Construction</option>
           </select>
           <textarea
             placeholder="Description"
