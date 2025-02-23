@@ -1,3 +1,4 @@
+"use client"
 import AboutButton from "@/components/AboutButton";
 import Map from "@/components/Map";
 import Link from "next/link";
