@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import { useSearchParams } from "next/navigation";
 import "leaflet/dist/leaflet.css";
@@ -7,6 +7,7 @@ import CategoryIcon from "./CategoryIcon";
 import RedIcon from "./Redicon";
 import Greenicon from "./Greenicon";
 import MapIcon from "./Mapicon";
+import dynamic from "next/dynamic";
 
 function SetCenter({ center }) {
     const map = useMap();
@@ -19,9 +20,9 @@ function SetCenter({ center }) {
 const defaultCenter = {
     lat: 25.3176,
     lng: 82.9739,
-}
+};
 
-const Map = () => {
+const MapComponent = () => {
     const searchParams = useSearchParams();
     const [reports, setReports] = useState([]);
     const [userLocation, setUserLocation] = useState(null);
@@ -48,36 +49,38 @@ const Map = () => {
     }, []);
 
     // Get user's current location
-    useEffect(() => {
-        if (urlLat && urlLng) {
-            setUserLocation(initialCenter);
-            setMarkerPosition(initialCenter);
-            setLoadingLocation(false);
-        } else if ("geolocation" in navigator) {
-            navigator.geolocation.getCurrentPosition(
-                (location) => {
-                    const newLocation = {
-                        lat: location.coords.latitude,
-                        lng: location.coords.longitude,
-                    };
-                    setUserLocation(newLocation);
-                    setMarkerPosition(newLocation);
-                    setLoadingLocation(false);
-                },
-                (error) => {
-                    console.error("Error getting location:", error);
-                    setUserLocation(defaultCenter);
-                    setMarkerPosition(defaultCenter);
-                    setLoadingLocation(false);
-                },
-                { enableHighAccuracy: true }
-            );
-        } else {
-            setUserLocation(defaultCenter);
-            setMarkerPosition(defaultCenter);
-            setLoadingLocation(false);
-        }
-    }, [urlLat, urlLng]);
+        useEffect(() => {
+            if (typeof window === "undefined") return;
+    
+            if (urlLat && urlLng) {
+                setUserLocation(initialCenter);
+                setMarkerPosition(initialCenter);
+                setLoadingLocation(false);
+            } else if ("geolocation" in navigator) {
+                navigator.geolocation.getCurrentPosition(
+                    (location) => {
+                        const newLocation = {
+                            lat: location.coords.latitude,
+                            lng: location.coords.longitude,
+                        };
+                        setUserLocation(newLocation);
+                        setMarkerPosition(newLocation);
+                        setLoadingLocation(false);
+                    },
+                    (error) => {
+                        console.error("Error getting location:", error);
+                        setUserLocation(defaultCenter);
+                        setMarkerPosition(defaultCenter);
+                        setLoadingLocation(false);
+                    },
+                    { enableHighAccuracy: true }
+                );
+            } else {
+                setUserLocation(defaultCenter);
+                setMarkerPosition(defaultCenter);
+                setLoadingLocation(false);
+            }
+        }, [urlLat, urlLng]);
 
     const eventHandlers = useMemo(() => ({
         dragend() {
@@ -111,9 +114,15 @@ const Map = () => {
                     .catch(console.error);
             }
         },
-    }), [title, description, reports, userLocation,]);
+    }), [title, description, reports, userLocation]);
 
-    if (loadingLocation) return <div>Loading map...</div>;
+    if (typeof window === "undefined" || loadingLocation)  {
+        return (
+            <div className="flex justify-center items-center h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-gray-900">
+                <p className="text-lg text-gray-700">Loading map...</p>
+            </div>
+        );
+    };
 
     return (
         <div>
@@ -133,9 +142,8 @@ const Map = () => {
                     >
                         <Popup>
                             <div className="mb-2">
-                            <b>{CategoryIcon(report.title)} {report.title}</b>
+                                <b>{CategoryIcon(report.title)} {report.title}</b>
                             </div>
-                            
                             {report.description} <br />
                             <div className="flex items-center font-bold">
                                 <span className={report.status ? "text-green-500" : "text-red-600"}>
@@ -211,4 +219,4 @@ const Map = () => {
     );
 };
 
-export default Map;
+export default MapComponent;

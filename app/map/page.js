@@ -10,6 +10,7 @@ import MapIcon from "@/components/Mapicon";
 import HomeButton from "@/components/HomeButton";
 import Link from "next/link";
 import Image from "next/image";
+import dynamic from "next/dynamic";
 
 // Component to set the map center
 function SetCenter({ center }) {
@@ -26,7 +27,8 @@ const defaultCenter = {
     lng: 82.9739,
 };
 
-const Map = () => {
+// Fix for SSR
+const MapContent = () => {
     const searchParams = useSearchParams();
     const [reports, setReports] = useState([]);
     const [userLocation, setUserLocation] = useState(null);
@@ -54,6 +56,8 @@ const Map = () => {
 
     // Get user's current location
     useEffect(() => {
+        if (typeof window === "undefined") return;
+
         if (urlLat && urlLng) {
             setUserLocation(initialCenter);
             setMarkerPosition(initialCenter);
@@ -118,8 +122,7 @@ const Map = () => {
         },
     }), [title, description, reports, userLocation]);
 
-    // Show loading message while fetching location
-    if (loadingLocation) {
+    if (typeof window === "undefined" || loadingLocation) {
         return (
             <div className="flex justify-center items-center h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-gray-900">
                 <p className="text-lg text-gray-700">Loading map...</p>
@@ -132,15 +135,15 @@ const Map = () => {
             {/* Header */}
             <div className="flex items-center mb-[2px] justify-between ">
                 <div className="flex items-center gap-4">
-                <Link href="/" className="hover:scale-105 transition-transform duration-200">
-                    <Image
-                        src="/Mainlogo.jpeg"
-                        alt="MyLogo"
-                        width={45}
-                        height={45}
-                        className="rounded-full bg-white p-[1px] shadow-lg"
-                    />
-                     </Link>
+                    <Link href="/" className="hover:scale-105 transition-transform duration-200">
+                        <Image
+                            src="/Mainlogo.jpeg"
+                            alt="MyLogo"
+                            width={45}
+                            height={45}
+                            className="rounded-full bg-white p-[1px] shadow-lg"
+                        />
+                    </Link>
                     <Link href="/" className="hover:scale-105 transition-transform duration-200">
                         <div className="bg-gradient-to-r  md:px-6 md:py-3 from-purple-600 to-blue-500 md:w-48 flex justify-center items-center p-2 rounded-xl cursor-pointer group">
                             <h1 className="md:text-2xl font-bold text-sm text-white tracking-wide transform group-hover:scale-110 transition-transform">
@@ -197,11 +200,45 @@ const Map = () => {
                         </Popup>
                     </Marker>
                 ))}
+
+                {/* Draggable Marker */}
+                <Marker
+                    draggable
+                    position={[markerPosition.lat, markerPosition.lng]}
+                    ref={markerRef}
+                    eventHandlers={eventHandlers}
+                >
+                    <Popup>
+                        <select
+                            value={title}
+                            onChange={(e) => setTitle(e.target.value)}
+                            className="p-1 border rounded w-full"
+                        >
+                            <option value="">Select Category</option>
+                            <option value="Police">🚔 Police</option>
+                            <option value="Medical">🏥 Medical</option>
+                            <option value="Fire">🔥 Fire</option>
+                            <option value="Towing">🆘 Towing</option>
+                            <option value="Electric">💡 Electrical</option>
+                            <option value="Construction">🚧 Construction</option>
+                        </select>
+                        <br />
+                        <input
+                            type="text"
+                            placeholder="Description"
+                            value={description}
+                            onChange={(e) => setDescription(e.target.value)}
+                            className="p-1 border rounded w-full mt-1"
+                        />
+                        <br />
+                        <span className="font-bold">Drag and drop to set position!</span>
+                    </Popup>
+                </Marker>
             </MapContainer>
 
             {/* Footer */}
             <footer className="text-center mt-6 text-gray-200">
-            <h1 className="text-2xl sm:text-3xl md:hidden block font-bold md:mt-[1%] mt-[2%] text-center mb-4 text-white">
+                <h1 className="text-2xl sm:text-3xl md:hidden block font-bold md:mt-[1%] mt-[2%] text-center mb-4 text-white">
                     Report Map
                 </h1>
                 <p>© 2025 Report Map. All rights reserved.</p>
@@ -210,4 +247,6 @@ const Map = () => {
     );
 };
 
+// Export with SSR disabled
+const Map = dynamic(() => Promise.resolve(MapContent), { ssr: false });
 export default Map;
