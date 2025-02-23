@@ -98,6 +98,7 @@ const Map = () => {
                         latitude: newPosition.lat,
                         longitude: newPosition.lng,
                         status: false,
+                        createdAt: new Date().toISOString()
                     }),
                 })
                     .then((res) => res.json())
@@ -110,7 +111,7 @@ const Map = () => {
                     .catch(console.error);
             }
         },
-    }), [title, description, reports, userLocation]);
+    }), [title, description, reports, userLocation,]);
 
     if (loadingLocation) return <div>Loading map...</div>;
 
@@ -131,7 +132,10 @@ const Map = () => {
                         position={[report.latitude, report.longitude]}
                     >
                         <Popup>
-                            <b>{CategoryIcon(report.title)} {report.title}</b> <br />
+                            <div className="mb-2">
+                            <b>{CategoryIcon(report.title)} {report.title}</b>
+                            </div>
+                            
                             {report.description} <br />
                             <div className="flex items-center font-bold">
                                 <span className={report.status ? "text-green-500" : "text-red-600"}>
@@ -139,7 +143,7 @@ const Map = () => {
                                 </span>
                                 <input
                                     type="checkbox"
-                                    className="ml-2 accent-green-500"
+                                    className="ml-2 accent-green-500 mt-3 mb-1 cursor-pointer"
                                     checked={report.status}
                                     onChange={async () => {
                                         await fetch("/api/reports", {
@@ -186,7 +190,7 @@ const Map = () => {
                             <option value="Police">🚔 Police</option>
                             <option value="Medical">🏥 Medical</option>
                             <option value="Fire">🔥 Fire</option>
-                            <option value="Towing">🚘🆘 Towing</option>
+                            <option value="Towing">🆘 Towing</option>
                             <option value="Electric">💡 Electrical</option>
                             <option value="Construction">🚧 Construction</option>
                         </select>

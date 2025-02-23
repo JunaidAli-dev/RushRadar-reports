@@ -1,73 +1,100 @@
-"use client"
-import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from "react-leaflet";
+"use client";
+import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import { useSearchParams } from "next/navigation";
 import "leaflet/dist/leaflet.css";
-import { useEffect, useState, useRef, useMemo, useCallback } from "react";
+import { useEffect, useState, useRef, useMemo } from "react";
 import CategoryIcon from "@/components/CategoryIcon";
 import RedIcon from "@/components/Redicon";
 import Greenicon from "@/components/Greenicon";
 import MapIcon from "@/components/Mapicon";
+import HomeButton from "@/components/HomeButton";
+import Link from "next/link";
+import Image from "next/image";
 
+// Component to set the map center
+function SetCenter({ center }) {
+    const map = useMap();
+    useEffect(() => {
+        map.setView(center);
+    }, [center]);
+    return null;
+}
 
-
-
-<CategoryIcon />
-
-
-const center = {
+// Default center coordinates
+const defaultCenter = {
     lat: 25.3176,
     lng: 82.9739,
-}
+};
 
 const Map = () => {
     const searchParams = useSearchParams();
     const [reports, setReports] = useState([]);
-    const [position, setPosition] = useState(center);
+    const [userLocation, setUserLocation] = useState(null);
+    const [markerPosition, setMarkerPosition] = useState(defaultCenter);
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
     const markerRef = useRef(null);
+    const [loadingLocation, setLoadingLocation] = useState(true);
 
-
-    //  Get coordinates from URL (if any)
+    // Get coordinates from URL (if any)
     const urlLat = searchParams.get("lat");
     const urlLng = searchParams.get("lng");
-
-    const initialCenter = urlLat && urlLng ? { lat: parseFloat(urlLat), lng: parseFloat(urlLng) } : center;
+    const initialCenter = urlLat && urlLng ? {
+        lat: parseFloat(urlLat),
+        lng: parseFloat(urlLng)
+    } : defaultCenter;
 
     // Fetch reports on mount
     useEffect(() => {
         fetch("/api/reports")
             .then((res) => res.json())
-            .then((data) => {
-                console.log(data);
-                setReports(data)
-            })
-            .catch((err) => console.error("Error fetching reports:", err));
+            .then(setReports)
+            .catch(console.error);
     }, []);
 
+    // Get user's current location
+    useEffect(() => {
+        if (urlLat && urlLng) {
+            setUserLocation(initialCenter);
+            setMarkerPosition(initialCenter);
+            setLoadingLocation(false);
+        } else if ("geolocation" in navigator) {
+            navigator.geolocation.getCurrentPosition(
+                (location) => {
+                    const newLocation = {
+                        lat: location.coords.latitude,
+                        lng: location.coords.longitude,
+                    };
+                    setUserLocation(newLocation);
+                    setMarkerPosition(newLocation);
+                    setLoadingLocation(false);
+                },
+                (error) => {
+                    console.error("Error getting location:", error);
+                    setUserLocation(defaultCenter);
+                    setMarkerPosition(defaultCenter);
+                    setLoadingLocation(false);
+                },
+                { enableHighAccuracy: true }
+            );
+        } else {
+            setUserLocation(defaultCenter);
+            setMarkerPosition(defaultCenter);
+            setLoadingLocation(false);
+        }
+    }, [urlLat, urlLng]);
 
-    const [isChecked, setisChecked] = useState(false);
-
-
-
-
-
-
-    // Drag event handler
+    // Event handlers for marker drag
     const eventHandlers = useMemo(() => ({
         dragend() {
             const marker = markerRef.current;
             if (marker) {
                 const newPosition = marker.getLatLng();
-                //  Prevent empty title/description submissions
                 if (!title.trim() || !description.trim()) {
                     alert("Please enter a title and description before submitting.");
                     return;
                 }
 
-                setPosition(newPosition);
-
-                //  Send the updated data to the backend
                 fetch("/api/reports", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
@@ -81,52 +108,106 @@ const Map = () => {
                 })
                     .then((res) => res.json())
                     .then((data) => {
-                        setReports([...reports, data]); // Add new marker as static
-                        setTitle(""); // Reset title
-                        setDescription(""); // Reset description
-                        setPosition(center); // Reset position for new draggable marker
+                        setReports([...reports, data]);
+                        setTitle("");
+                        setDescription("");
+                        setMarkerPosition(userLocation || defaultCenter);
                     })
-                    .catch((err) => console.error("Error updating marker:", err));
+                    .catch(console.error);
             }
         },
-    }), [title, description, reports,]);
+    }), [title, description, reports, userLocation]);
+
+    // Show loading message while fetching location
+    if (loadingLocation) {
+        return (
+            <div className="flex justify-center items-center h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-gray-900">
+                <p className="text-lg text-gray-700">Loading map...</p>
+            </div>
+        );
+    }
 
     return (
-        <div className="p-3">
+        <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-gray-900 p-2 sm:p-6">
+            {/* Header */}
+            <div className="flex items-center mb-[2px] justify-between ">
+                <div className="flex items-center gap-4">
+                <Link href="/" className="hover:scale-105 transition-transform duration-200">
+                    <Image
+                        src="/Mainlogo.jpeg"
+                        alt="MyLogo"
+                        width={45}
+                        height={45}
+                        className="rounded-full bg-white p-[1px] shadow-lg"
+                    />
+                     </Link>
+                    <Link href="/" className="hover:scale-105 transition-transform duration-200">
+                        <div className="bg-gradient-to-r  md:px-6 md:py-3 from-purple-600 to-blue-500 md:w-48 flex justify-center items-center p-2 rounded-xl cursor-pointer group">
+                            <h1 className="md:text-2xl font-bold text-sm text-white tracking-wide transform group-hover:scale-110 transition-transform">
+                                RushRadar
+                            </h1>
+                            <span className="ml-2 text-xs text-white opacity-80 group-hover:opacity-100">Reports</span>
+                        </div>
+                    </Link>
+                </div>
 
-            <MapContainer center={[center.lat, center.lng]} zoom={13} className="h-[97vh] rounded-2xl w-full">
+                <h1 className="text-2xl sm:text-3xl mr-[7vw] hidden md:block font-bold md:mt-[1%] mt-[2%] text-center mb-4 text-white">
+                    Report Map
+                </h1>
+                <HomeButton />
+            </div>
+
+            {/* Map Container */}
+            <MapContainer
+                center={initialCenter}
+                zoom={13}
+                className="h-[60vh] sm:h-[80vh] w-full rounded-3xl shadow-2xl border-2 border-gray-200"
+            >
+                <SetCenter center={userLocation || initialCenter} />
                 <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
 
+                {/* Display Reports as Markers */}
                 {reports.map((report) => (
-                    <Marker icon={report.status ? Greenicon : RedIcon} key={report.id} position={[report.latitude, report.longitude]}>
+                    <Marker
+                        icon={report.status ? Greenicon : RedIcon}
+                        key={report.id}
+                        position={[report.latitude, report.longitude]}
+                    >
                         <Popup>
-                            <b>{CategoryIcon(report.title)} {report.title}</b> <br />
-                            {report.description} <br />
-                            <div className="flex items-center font-bold">
-                                <span className={report.status ? "text-green-500" : "text-red-600"}>{report.status ? "Resolved" : "Not Resolved"}</span>
-
+                            <div className="p-2">
+                                <div className="flex items-center gap-2">
+                                    {CategoryIcon(report.title)}
+                                    <b className="text-lg">{report.title}</b>
+                                </div>
+                                <p className="text-gray-600 mt-2">{report.description}</p>
+                                <div className="flex items-center mt-2">
+                                    <span className={`font-bold ${report.status ? "text-green-500" : "text-red-600"}`}>
+                                        {report.status ? "Resolved" : "Not Resolved"}
+                                    </span>
+                                </div>
+                                <a
+                                    href={`https://www.google.com/maps/dir/?api=1&destination=${report.latitude},${report.longitude}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="mt-2 inline-flex items-center text-blue-600 hover:text-blue-800 font-bold"
+                                >
+                                    Get Directions <MapIcon size={18} className="ml-1" />
+                                </a>
                             </div>
-                           
-                            {/* Add Google Maps direction link */}
-                            <a
-                                href={`https://www.google.com/maps/dir/?api=1&destination=${report.latitude},${report.longitude}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-blue-600 font-bold"
-                            >
-                                <div className="flex justify-center items-center gap-1">Get Directions <MapIcon size={18} /></div>
-                            </a>
                         </Popup>
                     </Marker>
                 ))}
-
-
-
-
             </MapContainer>
+
+            {/* Footer */}
+            <footer className="text-center mt-6 text-gray-200">
+            <h1 className="text-2xl sm:text-3xl md:hidden block font-bold md:mt-[1%] mt-[2%] text-center mb-4 text-white">
+                    Report Map
+                </h1>
+                <p>© 2025 Report Map. All rights reserved.</p>
+            </footer>
         </div>
     );
 };
 
 export default Map;
-

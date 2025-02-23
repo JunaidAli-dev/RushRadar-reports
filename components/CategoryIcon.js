@@ -7,7 +7,7 @@ const CategoryIcon = (category) => {
         case "Fire":
             return "🔥"; // Fire Emoji
         case "Towing":
-            return "🚘🆘";
+            return "🆘";
         case "Electric":
             return "💡";
         case "Construction":
