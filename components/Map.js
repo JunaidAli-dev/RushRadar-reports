@@ -151,7 +151,7 @@ const MapComponent = () => {
           icon={report.status ? Greenicon : RedIcon}
         >
           <Popup className="!min-w-[120px] max-w-[95vw] sm:max-w-[200px]">
-            <div className="mb-0.5">
+            <div className="mb-">
               <span className="text-sm font-semibold">
                 {CategoryIcon && typeof CategoryIcon === "function"
                   ? CategoryIcon(report.title)
@@ -159,7 +159,7 @@ const MapComponent = () => {
                 {report.title}
               </span>
             </div>
-            <p className="text-[13px] text-gray-600 mb-1 leading-tight break-words line-clamp-3">
+            <p className="text-[13px] text-gray-600  leading-tight break-words line-clamp-10">
               {report.description}
             </p>
             <div className="flex items-center gap-3.5">
